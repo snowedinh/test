@@ -14,6 +14,13 @@ st.sidebar.info(markdown)
 logo = "https://i.imgur.com/UbOXYAU.png"
 st.sidebar.image(logo)
 
+st.title("江汉平原的多时相影像与春季遥感影像的比较")
+st.markdown("""
+左图为三月的影像，以第1、2、3波段赋值给rgb波段；
+右图为以3、5、7月三个关键物候期的中值合成影像分别赋值给rgb通道的多时相影像
+""", unsafe_allow_html=True)
+
+
 m = leafmap.Map()
 m.split_map(
     #left_layer="ESA WorldCover 2020 S2 FCC", right_layer="ESA WorldCover 2020"
@@ -21,14 +28,6 @@ m.split_map(
     right_layer="https://github.com/snowedinh/gis/raw/refs/heads/main/timeWindowComposite_tiff_cropped.tif"
 )
 #m.add_legend(title="ESA Land Cover", builtin_legend="ESA_WorldCover")
-
-legend_html = """
-<div style="position: fixed; 
-            bottom: 10px; right: 10px; width: 200px; height: 150px; 
-            border:2px solid grey; background-color:white; 
-            z-index:9999; font-size:14px; padding: 10px;">
-<b>耕地分类</b><br>
-<img src="https://www.colorhexa.com/000000.png" width="30" height="30"> Low NDVI (Black)<br>
-<img src="https://www.colorhexa.com/bfbfbf.png" width="30" height="30"> High NDVI (Gray)<br>
-</div>
+# Show map in Streamlit
+m.to_streamlit(height=500)
 """

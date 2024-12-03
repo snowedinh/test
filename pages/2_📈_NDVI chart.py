@@ -26,7 +26,7 @@ st.markdown("""
 
 # 读取影像
 image_url = "https://github.com/snowedinh/gis/raw/refs/heads/main/timeWindowComposite_tiff_cropped.tif"
-rgb_image, red_band, green_band, blue_band = create_rgb_from_tiff(image_url)
+
 
 # 获取影像尺寸
 height, width, _ = rgb_image.shape

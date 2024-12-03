@@ -27,24 +27,25 @@ st.markdown("""
 def create_rgb_from_tiff(image_url):
     with rasterio.open(image_url) as src:
         # 读取RGB波段（假设红色、绿色、蓝色波段分别为 3, 2, 1）
-        band1 = src.read(1)   # Band 3 (Red)
+        band1 = src.read(3)   # Band 3 (Red)
         band2 = src.read(2)   # Band 2 (Green)
-        band3 = src.read(3)   # Band 1 (Blue)
+        band3 = src.read(1)   # Band 1 (Blue)
 
         # Combine into an RGB image
         rgb = np.stack((band1, band2, band3), axis=-1)  # RGB order
         return rgb, band1, band2, band3
 
-
+# 读取影像
 image_url = "https://github.com/snowedinh/gis/raw/refs/heads/main/timeWindowComposite_tiff_cropped.tif"
 rgb_image, red_band, green_band, blue_band = create_rgb_from_tiff(image_url)
 
-
+# 获取影像尺寸
 height, width, _ = rgb_image.shape
 
-
+# 创建一个空的数组来存储每个像素点的RGB值的曲线
 x_values = np.arange(0, width)
 
+# 假设我们选择影像中间部分的行来生成曲线（避免绘制大量的像素数据）
 y_index = height // 2  # 选择中间行
 
 # 提取中间行的RGB波段值
@@ -52,7 +53,7 @@ red_values = red_band[y_index, :]
 green_values = green_band[y_index, :]
 blue_values = blue_band[y_index, :]
 
-
+# 绘制曲线图
 fig, ax = plt.subplots(figsize=(10, 5))
 
 ax.plot(x_values, red_values, label="Red", color='r')
@@ -64,6 +65,6 @@ ax.set_ylabel("Band Value")
 ax.set_title("RGB Band Values Curve (Middle row of image)")
 ax.legend()
 
-
+# 将图表保存为图片并显示
 st.pyplot(fig)
 

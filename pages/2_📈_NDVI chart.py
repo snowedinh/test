@@ -12,21 +12,33 @@ st.set_page_config(layout="wide")
 markdown = """
 根据右侧影像的RGB波段值生成曲线
 """
+st.title("三时相的NDVI值与像元点的分布图")
+st.markdown("""
+分别提取多时相影像的各像元点的灰度值（NDVI的值），绘制直方图，反映各时相的耕地利用信息
+""", unsafe_allow_html=True)
 
 st.sidebar.title("About")
 st.sidebar.info(markdown)
 logo = "https://i.imgur.com/UbOXYAU.png"
 st.sidebar.image(logo)
 
-st.title("三时相的NDVI值与像元点的分布图")
-st.markdown("""
-分别提取多时相影像的各像元点的灰度值（NDVI的值），绘制直方图，反映各时相的耕地利用信息
-""", unsafe_allow_html=True)
+st.title("RGB波段曲线生成")
 
+# Function to read bands and combine into RGB image
+def create_rgb_from_tiff(image_url):
+    with rasterio.open(image_url) as src:
+        # 读取RGB波段（假设红色、绿色、蓝色波段分别为 3, 2, 1）
+        band1 = src.read(3)   # Band 3 (Red)
+        band2 = src.read(2)   # Band 2 (Green)
+        band3 = src.read(1)   # Band 1 (Blue)
+
+        # Combine into an RGB image
+        rgb = np.stack((band1, band2, band3), axis=-1)  # RGB order
+        return rgb, band1, band2, band3
 
 # 读取影像
 image_url = "https://github.com/snowedinh/gis/raw/refs/heads/main/timeWindowComposite_tiff_cropped.tif"
-
+rgb_image, red_band, green_band, blue_band = create_rgb_from_tiff(image_url)
 
 # 获取影像尺寸
 height, width, _ = rgb_image.shape

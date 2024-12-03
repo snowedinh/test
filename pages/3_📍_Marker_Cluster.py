@@ -1,11 +1,16 @@
 import streamlit as st
-import leafmap.foliumap as leafmap
+import rasterio
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+import io
 
+# 配置页面布局
 st.set_page_config(layout="wide")
 
+# 添加Markdown信息
 markdown = """
-A Streamlit map template
-<https://github.com/opengeos/streamlit-map-template>
+根据右侧影像的RGB波段值生成曲线
 """
 
 st.sidebar.title("About")
@@ -13,24 +18,52 @@ st.sidebar.info(markdown)
 logo = "https://i.imgur.com/UbOXYAU.png"
 st.sidebar.image(logo)
 
-st.title("Marker Cluster")
+st.title("三时相的NDVI值与像元点的分布图")
+st.markdown("""
+分别提取多时相影像的各像元点的灰度值（NDVI的值），绘制直方图，反映各时相的耕地利用信息
+""", unsafe_allow_html=True)
 
-with st.expander("See source code"):
-    with st.echo():
+# Function to read bands and combine into RGB image
+def create_rgb_from_tiff(image_url):
+    with rasterio.open(image_url) as src:
+        # 读取RGB波段（假设红色、绿色、蓝色波段分别为 3, 2, 1）
+        band1 = src.read(1)   # Band 3 (Red)
+        band2 = src.read(2)   # Band 2 (Green)
+        band3 = src.read(3)   # Band 1 (Blue)
 
-        m = leafmap.Map(center=[40, -100], zoom=4)
-        cities = "https://raw.githubusercontent.com/giswqs/leafmap/master/examples/data/us_cities.csv"
-        regions = "https://raw.githubusercontent.com/giswqs/leafmap/master/examples/data/us_regions.geojson"
+        # Combine into an RGB image
+        rgb = np.stack((band1, band2, band3), axis=-1)  # RGB order
+        return rgb, band1, band2, band3
 
-        m.add_geojson(regions, layer_name="US Regions")
-        m.add_points_from_xy(
-            cities,
-            x="longitude",
-            y="latitude",
-            color_column="region",
-            icon_names=["gear", "map", "leaf", "globe"],
-            spin=True,
-            add_legend=True,
-        )
 
-m.to_streamlit(height=700)
+image_url = "https://github.com/snowedinh/gis/raw/refs/heads/main/timeWindowComposite_tiff_cropped.tif"
+rgb_image, red_band, green_band, blue_band = create_rgb_from_tiff(image_url)
+
+
+height, width, _ = rgb_image.shape
+
+
+x_values = np.arange(0, width)
+
+y_index = height // 2  # 选择中间行
+
+# 提取中间行的RGB波段值
+red_values = red_band[y_index, :]
+green_values = green_band[y_index, :]
+blue_values = blue_band[y_index, :]
+
+
+fig, ax = plt.subplots(figsize=(10, 5))
+
+ax.plot(x_values, red_values, label="Red", color='r')
+ax.plot(x_values, green_values, label="Green", color='g')
+ax.plot(x_values, blue_values, label="Blue", color='b')
+
+ax.set_xlabel("Pixel Index")
+ax.set_ylabel("Band Value")
+ax.set_title("RGB Band Values Curve (Middle row of image)")
+ax.legend()
+
+
+st.pyplot(fig)
+

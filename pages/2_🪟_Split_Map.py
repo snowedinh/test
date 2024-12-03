@@ -30,4 +30,4 @@ m.split_map(
 #m.add_legend(title="ESA Land Cover", builtin_legend="ESA_WorldCover")
 # Show map in Streamlit
 m.to_streamlit(height=500)
-"""
+

@@ -18,7 +18,7 @@ logo = "https://i.imgur.com/UbOXYAU.png"
 st.sidebar.image(logo)
 
 # Customize page title
-st.title("空谱融合的地块级耕地种植状况遥感监测")
+st.title("江汉平原的耕地种植状况遥感监测")
 
 st.markdown(
     """
